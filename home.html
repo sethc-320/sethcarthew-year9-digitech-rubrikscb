@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rubriks Cafe + Bakery | Home</title>
+    <style>
+        /* Ticker Styles */
+        #ticker-container { margin-top: 65px; background: #efeae4; height: 40px; display: flex; align-items: center; justify-content: center; border-bottom: 1px solid #dcd5cc; overflow: hidden; position: relative; }
+        .ticker-item { position: absolute; opacity: 0; font-weight: bold; color: #5d544b; transition: opacity 1s ease-in-out; text-align: center; width: 100%; }
+        .ticker-item.active { opacity: 1; }
+
+        /* Expanding Search Bar */
+        #menuSearch {
+            padding: 12px 25px; border-radius: 30px; border: none; width: 350px; outline: none; background: #fff; font-weight: bold;
+            transition: width 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        /* Search Dropdown Container */
+        #searchDropdown { 
+            display: none; position: absolute; top: 55px; width: 500px; background: white; border-radius: 15px; 
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2); z-index: 10000; max-height: 450px; overflow-y: auto; border: 1px solid #efeae4;
+        }
+
+        /* --- STYLE 1: VERTICAL OVERLAY (For Page Cards) --- */
+        .menu-card {
+            background: white; border-radius: 20px; overflow: hidden; transition: transform 0.3s ease; position: relative;
+        }
+        .vertical-overlay {
+            position: absolute; bottom: 0; left: 0; width: 100%; height: 40%;
+            background: rgba(93, 84, 75, 0.95); color: #f3e9dc; padding: 15px; box-sizing: border-box;
+            transform: translateY(100%); transition: transform 0.3s ease; font-size: 0.85rem;
+        }
+        .menu-card:hover .vertical-overlay { transform: translateY(0); }
+        .menu-card:hover { transform: translateY(-8px); }
+
+        /* --- STYLE 2: HORIZONTAL OVERLAY (For Search Results) --- */
+        .search-result-card {
+            position: relative; overflow: hidden; background: white; border-bottom: 1px solid #eee; cursor: pointer;
+        }
+        .horizontal-overlay {
+            position: absolute; top: 0; right: 0; width: 50%; height: 100%;
+            background: rgba(93, 84, 75, 0.98); color: #f3e9dc; padding: 10px; box-sizing: border-box;
+            transform: translateX(101%); transition: transform 0.3s ease; font-size: 0.7rem;
+            display: flex; flex-direction: column; justify-content: center; z-index: 2; pointer-events: none;
+        }
+        .search-result-card:hover .horizontal-overlay { transform: translateX(0); }
+
+        .day-grid { display: grid; grid-template-columns: repeat(6, 1fr); gap: 15px; padding: 20px 5% 60px; background: #efeae4; }
+    </style>
+</head>
+<body style="margin: 0; font-family: 'Segoe UI', sans-serif; background-color: #fdfaf7; color: #4a3f35;">
+
+    <header style="position: fixed; top: 0; left: 0; width: 100%; z-index: 1000; background-color: #5d544b; padding: 10px 40px; display: flex; align-items: center; justify-content: space-between; box-sizing: border-box;">
+        <h1 style="color: #f3e9dc; margin: 0; font-size: 1.7rem; font-weight: bold; flex: 1;">Rubriks Cafe + Bakery</h1>
+        
+        <div style="flex: 1; display: flex; justify-content: center; position: relative;">
+            <input type="text" id="menuSearch" placeholder="Search treats...">
+            <div id="searchDropdown"></div>
+        </div>
+        
+        <nav style="flex: 1; display: flex; justify-content: flex-end; gap: 25px;">
+            <a href="home.html" style="color: #f3e9dc; text-decoration: none; font-weight: bold;">Home</a>
+            <a href="hello.html" style="color: #f3e9dc; text-decoration: none; font-weight: bold;">Menu</a>
+            <a href="contact.html" style="color: #f3e9dc; text-decoration: none; font-weight: bold;">Contact</a>
+        </nav>
+    </header>
+
+    <div id="ticker-container">
+        <div class="ticker-item active">OPENING HOURS: Mon-Fri 6am - 4pm | Sat-Sun 7am - 2pm</div>
+        <div class="ticker-item">PROMO: 10% off all pastries after 3pm today!</div>
+    </div>
+
+    <section style="display: flex; align-items: center; padding: 60px 10%; gap: 50px;">
+        <div style="flex: 1.5;">
+            <h2 style="font-size: 4.5rem; margin: 0; color: #5d544b; line-height: 1; font-weight: 800;">The Easter Menu<br>is Here!</h2>
+        </div>
+        
+        <div style="flex: 1; max-width: 320px;">
+            <div class="menu-card">
+                <img src="easter-drink1.png" style="width: 100%; height: 320px; object-fit: cover;">
+                <div style="padding: 15px;">
+                    <h3 style="margin: 0; font-size: 1.1rem;">Mini Eggs Frappe</h3>
+                    <p style="margin: 5px 0 0; font-weight: bold; color: #8b7e74;">FREE*</p>
+                </div>
+                <div class="vertical-overlay">
+                    <b style="color: #d4a373;">SEASONAL SPECIAL</b>
+                    <div style="margin-top: 5px;">Dairy, Nuts, Tree Nuts</div>
+                    <div style="margin-top: 5px; font-weight: bold;">380 kcal</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <div style="display: flex; background: #efeae4; padding: 25px 5% 0; border-top: 1px solid #dcd5cc;">
+        <h3 style="flex: 1; margin: 0; text-align: center; color: #5d544b;">Pastries of The Day</h3>
+        <h3 style="flex: 1; margin: 0; text-align: center; color: #5d544b;">Drinks of The Day</h3>
+    </div>
+
+    <div class="day-grid" id="dayGrid"></div>
+
+    <footer style="text-align: center; padding: 40px; border-top: 1px solid #dcd5cc;">
+        <p style="margin: 0; font-weight: bold; color: #8b7e74;">Made by Seth Carthew in Year 9 at Caboolture State High School</p>
+    </footer>
+
+    <script src="database.js"></script>
+    <script>
+        const searchInputHome = document.getElementById('menuSearch');
+        const searchDropdownHome = document.getElementById('searchDropdown');
+
+        // SEARCH LOGIC: Horizontal Overlay
+        searchInputHome.addEventListener('input', (e) => {
+            const term = e.target.value.toLowerCase();
+            if (term.length > 0) {
+                searchInputHome.style.width = "500px"; 
+                searchDropdownHome.style.display = "block";
+                const matches = menuItems.filter(item => item.name.toLowerCase().includes(term));
+                
+                searchDropdownHome.innerHTML = matches.slice(0, 5).map(item => `
+                    <div class="search-result-card" onclick="window.location.href='hello.html'">
+                        <div style="display: flex; align-items: center; padding: 12px;">
+                            <img src="${item.image}" style="width: 45px; height: 45px; border-radius: 8px; margin-right: 12px; object-fit: cover;">
+                            <div>
+                                <div style="font-weight: bold; font-size: 0.8rem;">${item.name}</div>
+                                <div style="font-size: 0.7rem; color: #8b7e74;">$${item.price.toFixed(2)}</div>
+                            </div>
+                        </div>
+                        <div class="horizontal-overlay">
+                            <b style="color: #d4a373; font-size: 0.6rem;">${item.type.toUpperCase()}</b>
+                            <div style="font-size: 0.6rem; margin-top: 3px;">${item.allergens}</div>
+                            <div style="margin-top: 3px; font-weight: bold;">${item.calories} kcal</div>
+                        </div>
+                    </div>
+                `).join('');
+            } else {
+                searchInputHome.style.width = "350px"; 
+                searchDropdownHome.style.display = "none";
+            }
+        });
+
+        // GRID LOGIC: Vertical Overlays
+        const dayGrid = document.getElementById('dayGrid');
+        const dailyItems = [menuItems[0], menuItems[1], menuItems[2], menuItems[3], menuItems[4], menuItems[6]];
+
+        dayGrid.innerHTML = dailyItems.map(item => `
+            <div class="menu-card">
+                <img src="${item.image}" style="width: 100%; height: 160px; object-fit: cover;">
+                <div style="padding: 12px;">
+                    <h3 style="margin: 0; font-size: 0.8rem;">${item.name}</h3>
+                    <p style="margin: 3px 0 0; font-weight: bold; color: #8b7e74;">$${item.price.toFixed(2)}</p>
+                </div>
+                <div class="vertical-overlay">
+                    <b style="color: #d4a373; font-size: 0.7rem;">${item.type.toUpperCase()}</b>
+                    <div style="font-size: 0.65rem; margin-top: 4px;">${item.allergens}</div>
+                    <div style="margin-top: 4px; font-weight: bold;">${item.calories} kcal</div>
+                </div>
+            </div>
+        `).join('');
+
+        // Ticker & Click-away
+        let currentIdx = 0;
+        const tickers = document.querySelectorAll('.ticker-item');
+        setInterval(() => {
+            tickers[currentIdx].classList.remove('active');
+            currentIdx = (currentIdx + 1) % tickers.length;
+            tickers[currentIdx].classList.add('active');
+        }, 4000);
+
+        document.addEventListener('click', (e) => {
+            if (!searchInputHome.contains(e.target)) {
+                searchDropdownHome.style.display = "none";
+                if (searchInputHome.value === "") searchInputHome.style.width = "350px";
+            }
+        });
+    </script>
+</body>
+</html>

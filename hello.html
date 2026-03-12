@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rubriks Cafe + Bakery | Menu</title>
+    <style>
+        /* --- IDENTICAL HEADER & TICKER (Match Image 1) --- */
+        header {
+            position: fixed; top: 0; left: 0; width: 100%; z-index: 1000; 
+            background-color: #5d544b; padding: 10px 40px; display: flex; 
+            align-items: center; justify-content: space-between; box-sizing: border-box;
+        }
+        header h1 { color: #f3e9dc; margin: 0; font-size: 1.7rem; font-weight: bold; flex: 1; }
+        nav { flex: 1; display: flex; justify-content: flex-end; gap: 25px; }
+        nav a { color: #f3e9dc; text-decoration: none; font-weight: bold; }
+
+        #ticker-container { margin-top: 65px; background: #efeae4; height: 40px; display: flex; align-items: center; justify-content: center; border-bottom: 1px solid #dcd5cc; overflow: hidden; position: relative; }
+        .ticker-item { position: absolute; opacity: 0; font-weight: bold; color: #5d544b; transition: opacity 1s ease-in-out; text-align: center; width: 100%; }
+        .ticker-item.active { opacity: 1; }
+
+        /* --- SEARCH BAR --- */
+        .search-container { flex: 1; display: flex; justify-content: center; position: relative; }
+        #menuSearch {
+            padding: 12px 25px; border-radius: 30px; border: none; width: 350px; outline: none; background: #fff; font-weight: bold;
+            transition: width 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+        #searchDropdown { 
+            display: none; position: absolute; top: 55px; width: 500px; background: white; border-radius: 15px; 
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2); z-index: 10000; max-height: 450px; overflow-y: auto; border: 1px solid #efeae4;
+        }
+
+        /* --- FILTERS (New Feature) --- */
+        .filter-container { display: flex; justify-content: center; gap: 15px; padding: 30px 0 10px; background: #fdfaf7; }
+        .filter-chip {
+            padding: 10px 25px; border-radius: 25px; border: 2px solid #5d544b; background: transparent;
+            color: #5d544b; font-weight: bold; cursor: pointer; transition: 0.3s;
+        }
+        .filter-chip.active { background: #5d544b; color: #f3e9dc; }
+
+        /* --- GRID & OVERLAYS --- */
+        #mainDisplay { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 25px; padding: 20px 5% 80px; }
+        
+        .menu-card { 
+            background: white; border-radius: 20px; overflow: hidden; position: relative; 
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05); transition: 0.3s;
+            animation: cardFade 0.4s ease forwards;
+        }
+        @keyframes cardFade { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* Vertical Overlay (The Old One you liked) */
+        .vertical-overlay {
+            position: absolute; bottom: 0; left: 0; width: 100%; height: 45%;
+            background: rgba(93, 84, 75, 0.96); color: #f3e9dc; padding: 15px; box-sizing: border-box;
+            transform: translateY(101%); transition: transform 0.3s ease; font-size: 0.8rem;
+        }
+        .menu-card:hover .vertical-overlay { transform: translateY(0); }
+        .menu-card:hover { transform: translateY(-8px); }
+
+        /* Horizontal Overlay (The Search One) */
+        .search-result-card { position: relative; overflow: hidden; background: white; border-bottom: 1px solid #eee; cursor: pointer; }
+        .horizontal-overlay {
+            position: absolute; top: 0; right: 0; width: 50%; height: 100%;
+            background: rgba(93, 84, 75, 0.98); color: #f3e9dc; padding: 10px; box-sizing: border-box;
+            transform: translateX(101%); transition: transform 0.3s ease; font-size: 0.7rem;
+            display: flex; flex-direction: column; justify-content: center; z-index: 2; pointer-events: none;
+        }
+        .search-result-card:hover .horizontal-overlay { transform: translateX(0); }
+    </style>
+</head>
+<body style="margin: 0; font-family: 'Segoe UI', sans-serif; background-color: #fdfaf7;">
+
+    <header>
+        <h1>Rubriks Cafe + Bakery</h1>
+        <div class="search-container">
+            <input type="text" id="menuSearch" placeholder="Search menu...">
+            <div id="searchDropdown"></div>
+        </div>
+        <nav>
+            <a href="home.html">Home</a>
+            <a href="hello.html">Menu</a>
+            <a href="contact.html">Contact</a>
+        </nav>
+    </header>
+
+    <div id="ticker-container">
+        <div class="ticker-item active">OPENING HOURS: Mon-Fri 6am - 4pm | Sat-Sun 7am - 2pm</div>
+        <div class="ticker-item">PROMO: 10% off all pastries after 3pm today!</div>
+    </div>
+
+    <div class="filter-container">
+        <button class="filter-chip active" onclick="applyMenuFilter('All', this)">All</button>
+        <button class="filter-chip" onclick="applyMenuFilter('Pastry', this)">Pastries</button>
+        <button class="filter-chip" onclick="applyMenuFilter('Drink', this)">Drinks</button>
+        <button class="filter-chip" onclick="applyMenuFilter('Seasonal', this)">Seasonal</button>
+    </div>
+
+    <main id="mainDisplay"></main>
+
+    <footer style="text-align: center; padding: 40px; border-top: 1px solid #dcd5cc; background: #efeae4;">
+        <p style="margin: 0; font-weight: bold; color: #8b7e74; font-size: 0.8rem;">Made by Seth Carthew in Year 9 at Caboolture State High School</p>
+    </footer>
+
+    <script src="database.js"></script>
+    <script>
+        // Wait for page load
+        window.addEventListener('DOMContentLoaded', () => {
+            const searchInput = document.getElementById('menuSearch');
+            const searchDropdown = document.getElementById('searchDropdown');
+            const mainDisplay = document.getElementById('mainDisplay');
+
+            // 1. RENDER FUNCTION (The "Old Style" Grid)
+            window.drawGrid = function(items) {
+                mainDisplay.innerHTML = ""; 
+                if (!items || items.length === 0) {
+                    mainDisplay.innerHTML = "<p style='grid-column: 1/-1; text-align: center; padding: 50px;'>No treats found!</p>";
+                    return;
+                }
+
+                items.forEach(item => {
+                    const card = document.createElement('div');
+                    card.className = 'menu-card';
+                    card.innerHTML = `
+                        <img src="${item.image}" style="width: 100%; height: 200px; object-fit: cover;">
+                        <div style="padding: 15px;">
+                            <h3 style="margin: 0; font-size: 1.1rem;">${item.name}</h3>
+                            <p style="margin: 5px 0 0; font-weight: bold; color: #8b7e74;">$${item.price.toFixed(2)}</p>
+                        </div>
+                        <div class="vertical-overlay">
+                            <b style="color: #d4a373;">${item.type.toUpperCase()}</b>
+                            <div style="margin-top: 5px;"><i>${item.allergens}</i></div>
+                            <div style="margin-top: 10px; font-weight: bold;">${item.calories} kcal</div>
+                        </div>
+                    `;
+                    mainDisplay.appendChild(card);
+                });
+            };
+
+            // 2. THE BUTTON LOGIC (Fixed)
+            window.applyMenuFilter = function(category, btn) {
+                document.querySelectorAll('.filter-chip').forEach(c => c.classList.remove('active'));
+                btn.classList.add('active');
+
+                if (category === "All") {
+                    drawGrid(menuItems);
+                } else {
+                    const filtered = menuItems.filter(i => i.type === category);
+                    drawGrid(filtered);
+                }
+            };
+
+            // 3. THE SEARCH LOGIC (Split Logic)
+            searchInput.oninput = function() {
+                const term = this.value.toLowerCase().trim();
+                if (term.length > 0) {
+                    this.style.width = "500px"; 
+                    searchDropdown.style.display = "block";
+                    const matches = menuItems.filter(i => i.name.toLowerCase().includes(term));
+                    
+                    searchDropdown.innerHTML = matches.slice(0, 5).map(item => `
+                        <div class="search-result-card">
+                            <div style="display: flex; align-items: center; padding: 12px;">
+                                <img src="${item.image}" style="width: 45px; height: 45px; border-radius: 8px; margin-right: 12px; object-fit: cover;">
+                                <div>
+                                    <div style="font-weight: bold; font-size: 0.85rem;">${item.name}</div>
+                                    <div style="font-size: 0.75rem; color: #8b7e74;">$${item.price.toFixed(2)}</div>
+                                </div>
+                            </div>
+                            <div class="horizontal-overlay">
+                                <b style="color: #d4a373;">${item.type.toUpperCase()}</b>
+                                <div style="font-size: 0.6rem; margin-top: 3px;">${item.allergens}</div>
+                                <div style="font-weight: bold;">${item.calories} kcal</div>
+                            </div>
+                        </div>
+                    `).join('');
+                } else {
+                    this.style.width = "350px"; 
+                    searchDropdown.style.display = "none";
+                }
+            };
+
+            // Startup
+            if (typeof menuItems !== 'undefined') drawGrid(menuItems);
+        });
+
+        // Ticker logic
+        let currentIdx = 0;
+        setInterval(() => {
+            const tickers = document.querySelectorAll('.ticker-item');
+            if(tickers.length > 0) {
+                tickers[currentIdx].classList.remove('active');
+                currentIdx = (currentIdx + 1) % tickers.length;
+                tickers[currentIdx].classList.add('active');
+            }
+        }, 4000);
+    </script>
+</body>
+</html>
